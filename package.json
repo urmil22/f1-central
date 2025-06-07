@@ -1,0 +1,36 @@
+{
+  "name": "f1-central",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "eslint": "eslint .",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "antd": "^5.25.2",
+    "framer-motion": "^12.11.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "eslint": "^9.26.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vite": "^6.3.5"
+  }
+}
