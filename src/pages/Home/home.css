@@ -1,0 +1,41 @@
+.home-container {
+    padding: 24px;
+
+    .hero {
+        text-align: center;
+    }
+
+    .top-drivers-grid {
+        display: grid;
+        gap: 16px;
+        /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+
+        .driver-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 4px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .upcoming-races-container {
+
+        .upcoming-races-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+        }
+
+        .race-card {
+            border-left: 5px solid red;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    }
+}

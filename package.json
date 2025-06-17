@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "antd": "^5.25.2",
+    "dayjs": "^1.11.13",
     "framer-motion": "^12.11.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
