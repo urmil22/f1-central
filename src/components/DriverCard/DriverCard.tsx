@@ -13,6 +13,8 @@ type DriverCardProps = {
 
 const DriverCard = ({ name, position, points, wins, nationality, constructor_name, colorCode }: DriverCardProps) => {
 
+    const { Title } = Typography;
+
     return (
         <motion.div
             className="driver-card"
@@ -23,14 +25,14 @@ const DriverCard = ({ name, position, points, wins, nationality, constructor_nam
             style={{ borderLeft: `5px solid ${colorCode}` }}
         >
             <div>
-                <Typography.Title level={3} >
+                <Title level={3} >
                     #{position} {name}
-                </Typography.Title>
-                <Typography.Title level={4}>{constructor_name}</Typography.Title>
-                <Typography.Title level={5}>🌍 {nationality}</Typography.Title>
+                </Title>
+                <Title level={4}>{constructor_name}</Title>
+                <Title level={5}>🌍 {nationality}</Title>
             </div>
             <div>
-                <Typography.Title level={4}>🏁 {points} points · 🏆 {wins} wins</Typography.Title>
+                <Title level={4}>🏁 {points} points · 🏆 {wins} wins</Title>
             </div>
         </motion.div>
     );

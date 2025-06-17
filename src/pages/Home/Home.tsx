@@ -17,6 +17,7 @@ interface Driver {
     nationality: string;
     constructor_name: string;
     Driver: {
+        driverId: string;
         givenName: string;
         familyName: string;
         nationality: string;
@@ -45,7 +46,6 @@ interface Race {
 const Home = () => {
     const [topDrivers, setTopDrivers] = useState<Driver[]>([]);
     const [races, setRaces] = useState<Race[]>([]);
-
 
     const { Title } = Typography;
 
@@ -92,7 +92,7 @@ const Home = () => {
                 transition={{ duration: 0.6 }}
                 whileHover={{ scale: 1.03 }}
             >
-                <Typography.Title level={1}>F1 Central</Typography.Title>
+                <Title level={1}>F1 Central</Title>
             </motion.div>
             <Title level={2}>Driver Championship Standings 🏆</Title>
             <Title level={4}>
@@ -101,7 +101,7 @@ const Home = () => {
             <div className="top-drivers-grid">
                 {topDrivers.length > 0 ? topDrivers.map((driver) => (
                     <DriverCard
-                        key={driver.position}
+                        key={driver.Driver.driverId}
                         name={`${driver.Driver.givenName} ${driver.Driver.familyName}`}
                         position={driver.position}
                         points={driver.points}
@@ -119,7 +119,7 @@ const Home = () => {
                 <Title level={2}>Upcoming Races 🏁</Title>
 
                 <div className="upcoming-races-grid">
-                    {races.length > 0 ? races.map((race) => <RaceCard key={race.date} race={race} />) : <Spin size="large" />}
+                    {races.length > 0 ? races.map((race) => <RaceCard key={race.time} race={race} />) : <Spin size="large" />}
                 </div>
             </div>
         </div>
