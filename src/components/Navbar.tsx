@@ -1,4 +1,3 @@
-// src/components/Navbar.tsx
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +9,6 @@ const Navbar = () => {
     { to: "/", label: "Home" },
     { to: "/drivers", label: "Drivers" },
     { to: "/constructors", label: "Constructors" },
-    { to: "/calendar", label: "Calendar" },
     { to: "/standings", label: "Standings" },
     { to: "/circuits", label: "Circuits" },
   ];

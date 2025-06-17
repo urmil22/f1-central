@@ -1,16 +1,14 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Footer from "../components/Footer/Footer";
 
 const RootLayout = () => {
     return (
-        <>
+        <div className="root-layout">
             <Navbar />
-            <main style={{ minHeight: "80vh", padding: "1rem" }}>
-                <Outlet />
-            </main>
+            <Outlet />
             <Footer />
-        </>
+        </div>
     );
 };
 

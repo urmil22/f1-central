@@ -1,3 +1,5 @@
+import { F1_TEAM_COLORS } from "../constants";
+
 const BASE_URL = "https://api.jolpi.ca/ergast/f1";
 
 export const fetchCurrentSeason = async () => {
@@ -40,10 +42,26 @@ export async function fetchDriverStandings() {
     try {
         const res = await fetch(`${BASE_URL}/current/driverstandings.json`);
         const data = await res.json();
-        return data.MRData.StandingsTable.StandingsLists[0] || {};
+        const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings || {};
+        const updatedStandings = standings.map((driver: { Constructors: any[]; }) => {
+            const constructor = driver.Constructors[0];
+            const colorCode = F1_TEAM_COLORS[constructor.constructorId] || "#999";
 
-    } catch {
-        // console.log('error', error);
+            return {
+                ...driver,
+                Constructors: [
+                    {
+                        ...constructor,
+                        colorCode,
+                    },
+                ],
+            };
+        });
+        return updatedStandings;
+
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('error', error);
     }
 }
 
@@ -55,7 +73,21 @@ export async function getRaceScheduleData() {
     const data = await res.json();
 
     if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
-        return data.MRData.RaceTable.Races.map((race) => ({
+        interface race {
+            season: string;
+            round: string;
+            raceName: string;
+            date: string;
+            time: string;
+            Circuit: {
+                circuitName: string;
+                Location: {
+                    locality: string;
+                    country: string;
+                };
+            };
+        }
+        return data.MRData.RaceTable.Races.map((race: race) => ({
             season: race.season,
             round: race.round,
             raceName: race.raceName,
