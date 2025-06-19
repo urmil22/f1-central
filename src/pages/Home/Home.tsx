@@ -94,7 +94,7 @@ const Home = () => {
             >
                 <Title level={1}>F1 Central</Title>
             </motion.div>
-            <Title level={2}>Driver Championship Standings 🏆</Title>
+            <Title level={2}>Drivers Championship Standings 🏆</Title>
             <Title level={4}>
                 {dayjs().get('year')} Formula 1 Season
             </Title>
