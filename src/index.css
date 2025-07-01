@@ -11,8 +11,3 @@ body {
     justify-content: space-between;
     height: 100dvh;
 }
-
-.race-timer {
-    display: flex;
-    gap: 8px;
-}
