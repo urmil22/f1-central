@@ -29,6 +29,9 @@
         }
 
         .race-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             border-left: 5px solid red;
             background: white;
             padding: 16px;
