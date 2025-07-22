@@ -6,7 +6,8 @@ export const F1_TEAM_COLORS: Record<string, string> = {
     aston_martin: "#006F62",
     alpine: "#2293D1",
     williams: "#37BEDD",
-    rb: "#6692FF",             // Visa Cash App RB
+    rb: "#6692FF",
     kick_sauber: "#52E252",
     haas: "#B6BABD",
+    sauber: "#52E252"
 };

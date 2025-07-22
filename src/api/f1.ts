@@ -2,40 +2,31 @@ import { F1_TEAM_COLORS } from "../constants";
 
 const BASE_URL = "https://api.jolpi.ca/ergast/f1";
 
-export const fetchCurrentSeason = async () => {
-    const res = await fetch(`${BASE_URL}/season`);
-    if (!res.ok) throw new Error("Failed to fetch current season");
-    return res.json();
-};
-
-export const fetchRaceSchedule = async () => {
-    const res = await fetch(`${BASE_URL}/schedule`);
-    if (!res.ok) throw new Error("Failed to fetch race schedule");
-    return res.json();
-};
-
-export const fetchDrivers = async () => {
-    const res = await fetch(`${BASE_URL}/drivers`);
-    if (!res.ok) throw new Error("Failed to fetch drivers");
-    return res.json();
-};
-
-export const fetchDriverDetails = async (driverId: string) => {
-    const res = await fetch(`${BASE_URL}/driver/${driverId}`);
-    if (!res.ok) throw new Error("Failed to fetch driver details");
-    return res.json();
-};
-
 export const fetchConstructorStandings = async () => {
-    const res = await fetch(`${BASE_URL}/standings/constructors`);
-    if (!res.ok) throw new Error("Failed to fetch constructor standings");
-    return res.json();
-};
+    try {
+        const res = await fetch(`${BASE_URL}/current/constructorstandings.json`);
+        const data = await res.json();
+        const standings = data.MRData.StandingsTable.StandingsLists[0].ConstructorStandings || [];
+        const updatedStandings = standings.map((constructor: any) => {
+            const colorCode = F1_TEAM_COLORS[constructor.Constructor.constructorId] || "#999";
 
-export const fetchRaceResults = async (round: number) => {
-    const res = await fetch(`${BASE_URL}/results/${round}`);
-    if (!res.ok) throw new Error("Failed to fetch race results");
-    return res.json();
+            return {
+                ...constructor,
+                Constructors: [
+                    {
+                        ...constructor.Constructor,
+                        colorCode,
+                    },
+                ],
+            };
+        });
+        return updatedStandings;
+
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('error', error);
+        return [];
+    }
 };
 
 export async function fetchDriverStandings() {

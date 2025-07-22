@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Spin, Typography, notification } from 'antd';
-import { motion } from "framer-motion";
 import dayjs from "dayjs";
-
 import { fetchDriverStandings, getRaceScheduleData } from "../../api/f1";
 import DriverCard from "../../components/DriverCard/DriverCard";
 import RaceCard from "../../components/RaceCard";
-
 import './home.css';
 
 interface Driver {
@@ -85,15 +82,6 @@ const Home = () => {
 
     return (
         <div className="home-container">
-            <motion.div
-                className="hero"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                whileHover={{ scale: 1.03 }}
-            >
-                <Title level={1}>F1 Central</Title>
-            </motion.div>
             <Title level={2}>Drivers&apos; Championship Standings 🏆</Title>
             <Title level={4}>
                 {dayjs().get('year')} Formula 1 Season
