@@ -48,7 +48,9 @@ const Constructors = () => {
             {!isLoading && constructors.length > 0 && (
                 <div className="constructors-list-grid">
                     {constructors.map((constructor) => {
-                        const colorCode = constructor.Constructors[0].colorCode || "#999";
+                        const colorCode = constructor.Constructors.length > 0 
+                            ? constructor.Constructors[0].colorCode 
+                            : "#999";
 
                         return (
                             <motion.div
