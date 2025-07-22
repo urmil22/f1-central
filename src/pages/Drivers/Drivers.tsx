@@ -1,6 +1,6 @@
 import { notification, Spin, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { fetchDriverStandings } from "../../../api/f1";
+import { fetchDriverStandings } from "../../api/f1";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import './drivers.css';
