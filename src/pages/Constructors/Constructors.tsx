@@ -44,12 +44,12 @@ const Constructors = () => {
 
     return (
         <div className='constructors-container'>
-            <Title level={2}>Constructor Standings</Title>
+            <Title level={2} className="constructor-title">Constructor Standings 🏁</Title>
             {!isLoading && constructors.length > 0 && (
                 <div className="constructors-list-grid">
                     {constructors.map((constructor) => {
-                        const colorCode = constructor.Constructors.length > 0 
-                            ? constructor.Constructors[0].colorCode 
+                        const colorCode = constructor.Constructors.length > 0
+                            ? constructor.Constructors[0].colorCode
                             : "#999";
 
                         return (
