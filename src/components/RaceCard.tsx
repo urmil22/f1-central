@@ -1,14 +1,12 @@
 import { Typography } from "antd";
 import { motion } from "framer-motion";
-// import Timer from "./Timer/Timer";
+import Timer from "./Timer/Timer";
 
 
 const RaceCard = ({ race }: { race: any; }) => {
-    // const upcomingRaceTimer = new Date(`${race.date}T${race.time}`);
-    // console.log('race', race);
-
     const { Title } = Typography;
 
+    const raceDateTime = `${race.date}T${race.time}`;
     return (
         <motion.div
             className="race-card"
@@ -22,9 +20,7 @@ const RaceCard = ({ race }: { race: any; }) => {
             <Title level={5} type="secondary">
                 {race.date} – {race.Circuit.Location.locality}, {race.Circuit.Location.country}
             </Title>
-            {/* <Timer
-                targetDate={upcomingRaceTimer}
-            /> */}
+            <Timer utcDateTime={raceDateTime} />
         </motion.div>
     );
 };

@@ -1,95 +1,79 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Typography } from "antd";
+import React, { useEffect, useState } from "react";
 import './timer.css';
 
-interface TimerProps {
-    targetDate: Date;
-    className?: string;
-    style?: React.CSSProperties;
-}
-
-interface TimeLeft {
+type TimeLeft = {
     days: number;
     hours: number;
     minutes: number;
     seconds: number;
-    isExpired: boolean;
+};
+
+interface TimerProps {
+    utcDateTime: string; // Example: "2025-09-21T11:00:00Z"
 }
 
-const Timer: React.FC<TimerProps> = ({ targetDate }) => {
-    const calculateTimeLeft = useCallback((): TimeLeft => {
-        const now = new Date().getTime();
-        const target = targetDate.getTime();
-        const difference = target - now;
+const Timer: React.FC<TimerProps> = ({ utcDateTime }) => {
+    const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+    });
 
-        if (difference <= 0) {
-            return {
-                days: 0,
-                hours: 0,
-                minutes: 0,
-                seconds: 0,
-                isExpired: true,
-            };
-        }
-
-        return {
-            days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-            hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-            minutes: Math.floor((difference / (1000 * 60)) % 60),
-            seconds: Math.floor((difference / 1000) % 60),
-            isExpired: false,
-        };
-    }, [targetDate]);
-
-    const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft);
+    const { Title, Paragraph, Text } = Typography;
 
     useEffect(() => {
-        if (!targetDate || isNaN(targetDate.getTime())) {
-            return;
-        }
+        if (!utcDateTime) return;
 
-        const timer = setInterval(() => {
-            const newTimeLeft = calculateTimeLeft();
-            setTimeLeft(newTimeLeft);
-        }, 1000);
+        const targetDate = new Date(utcDateTime);
 
-        return () => clearInterval(timer);
-    }, [targetDate, calculateTimeLeft]);
+        const updateTimer = () => {
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
 
-    const timeUnits = useMemo(() => [
-        { value: timeLeft.days, label: 'day', labels: 'days' },
-        { value: timeLeft.hours, label: 'hour', labels: 'hours' },
-        { value: timeLeft.minutes, label: 'minute', labels: 'minutes' },
-        { value: timeLeft.seconds, label: 'second', labels: 'seconds' }
-    ], [timeLeft]);
+            if (diff <= 0) {
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
 
-    const formatValue = (value: number): string => {
-        return value.toString().padStart(2, '0');
-    };
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
 
-    if (timeLeft.isExpired) {
-        return (
-            <div
-                className='timer-container'
-            >
-                <div className="expired-message">
-                    Time&apos;s up!
-                </div>
-            </div>
-        );
-    }
+            setTimeLeft({ days, hours, minutes, seconds });
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+
+        return () => clearInterval(interval);
+    }, [utcDateTime]);
 
     return (
-        <div className='timer-container'>
-            {timeUnits.map(({ value, label, labels }) => (
-                <div key={label} className="time-block">
-                    <span className="time-value">
-                        {formatValue(value)}
-                    </span>
-                    <span className="time-label">
-                        {value === 1 ? label : labels}
-                    </span>
+        <div className="timer-container">
+            <Title level={4}>
+                Next race in
+            </Title>
+            <div className="timer-values">
+                <div className="timer-value">
+                    <Paragraph strong type="secondary">{timeLeft.days}</Paragraph>
+                    <Text>days</Text>
                 </div>
-            ))}
+                <div className="timer-value">
+                    <Paragraph strong type="secondary">{timeLeft.hours}</Paragraph>
+                    <Text>hours</Text>
+                </div>
+                <div className="timer-value">
+                    <Paragraph strong type="secondary">{timeLeft.minutes}</Paragraph>
+                    <Text>minutes</Text>
+                </div>
+                <div className="timer-value">
+                    <Paragraph strong type="secondary">{timeLeft.seconds}</Paragraph>
+                    <Text>seconds</Text>
+                </div>
+            </div>
         </div>
     );
 };
