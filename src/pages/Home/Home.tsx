@@ -130,8 +130,6 @@ const Home = () => {
         description: "Upcoming race information is currently unavailable.",
         placement: "bottomRight",
       });
-    } finally {
-      setRaceLoading(false);
     }
   };
 
