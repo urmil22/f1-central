@@ -368,7 +368,8 @@ const Home = () => {
             ))
           ) : (
             <Paragraph type="secondary" className="home-section__empty">
-              Season {new Date().getFullYear()} is over. Check back next year!
+              Season {new Date().getFullYear()} is over. Next season:{" "}
+              {new Date().getFullYear() + 1}.
             </Paragraph>
           )}
         </div>
