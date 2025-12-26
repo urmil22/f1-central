@@ -64,7 +64,7 @@ export async function getRaceScheduleData() {
     const data = await res.json();
 
     if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
-        interface race {
+        interface Race {
             season: string;
             round: string;
             raceName: string;
@@ -78,7 +78,7 @@ export async function getRaceScheduleData() {
                 };
             };
         }
-        return data.MRData.RaceTable.Races.map((race: race) => ({
+        return data.MRData.RaceTable.Races.map((race: Race) => ({
             season: race.season,
             round: race.round,
             raceName: race.raceName,
@@ -106,7 +106,7 @@ export async function getNextYearRaceScheduleData() {
     const data = await res.json();
 
     if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
-        interface race {
+        interface Race {
             season: string;
             round: string;
             raceName: string;
@@ -120,7 +120,7 @@ export async function getNextYearRaceScheduleData() {
                 };
             };
         }
-        return data.MRData.RaceTable.Races.map((race: race) => ({
+        return data.MRData.RaceTable.Races.map((race: Race) => ({
             season: race.season,
             round: race.round,
             raceName: race.raceName,
