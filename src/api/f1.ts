@@ -96,3 +96,45 @@ export async function getRaceScheduleData() {
         throw new Error("Invalid data format");
     }
 }
+
+export async function getNextYearRaceScheduleData() {
+    const nextYear = new Date().getFullYear() + 1;
+    const res = await fetch(`${BASE_URL}/${nextYear}.json`);
+    if (!res.ok) {
+        throw new Error("Failed to fetch race data");
+    }
+    const data = await res.json();
+
+    if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
+        interface race {
+            season: string;
+            round: string;
+            raceName: string;
+            date: string;
+            time: string;
+            Circuit: {
+                circuitName: string;
+                Location: {
+                    locality: string;
+                    country: string;
+                };
+            };
+        }
+        return data.MRData.RaceTable.Races.map((race: race) => ({
+            season: race.season,
+            round: race.round,
+            raceName: race.raceName,
+            date: race.date,
+            time: race.time,
+            Circuit: {
+                circuitName: race.Circuit.circuitName,
+                Location: {
+                    locality: race.Circuit.Location.locality,
+                    country: race.Circuit.Location.country,
+                },
+            },
+        }));
+    } else {
+        throw new Error("Invalid data format");
+    }
+}

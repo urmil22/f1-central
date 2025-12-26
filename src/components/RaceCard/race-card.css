@@ -1,0 +1,265 @@
+/* ====================================
+   RACE CARD - PREMIUM DESIGN
+   ==================================== */
+
+.race-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: clamp(1.75rem, 3vw, 2.5rem);
+    border-radius: var(--radius-xl);
+    background:
+        linear-gradient(
+            160deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.03) 45%,
+            rgba(10, 10, 15, 0.25) 100%
+        ),
+        rgba(15, 15, 24, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 18px 40px rgba(10, 10, 20, 0.45),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    color: var(--f1-white);
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.race-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% 35% 45% -20%;
+    background: radial-gradient(
+        circle at 0% 50%,
+        rgba(225, 6, 0, 0.35),
+        transparent 65%
+    );
+    filter: blur(90px);
+    opacity: 0.9;
+    transition: opacity var(--transition-base);
+    z-index: 0;
+}
+
+.race-card::after {
+    content: "";
+    position: absolute;
+    inset: 55% -25% -45% 45%;
+    background: radial-gradient(
+        circle at 100% 50%,
+        rgba(0, 163, 224, 0.28),
+        transparent 70%
+    );
+    filter: blur(120px);
+    opacity: 0.75;
+    transition: opacity var(--transition-base);
+    z-index: 0;
+}
+
+.race-card:hover {
+    border-color: rgba(225, 6, 0, 0.35);
+    box-shadow:
+        var(--shadow-xl),
+        0 0 42px rgba(225, 6, 0, 0.35);
+}
+
+.race-card:hover::before,
+.race-card:hover::after {
+    opacity: 1;
+}
+
+.race-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ====================================
+   HEADER
+   ==================================== */
+
+.race-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.race-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.race-card__title {
+    margin: 0 !important;
+    font-size: clamp(1.6rem, 2.4vw, 2rem) !important;
+    letter-spacing: -0.015em;
+}
+
+.race-card__subtitle {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ====================================
+   META DATA
+   ==================================== */
+
+.race-card__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-md);
+    padding: var(--space-sm);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+.race-card__meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.race-card__meta-item svg {
+    font-size: 1.4rem;
+    color: var(--f1-red-primary);
+    filter: drop-shadow(0 0 12px rgba(225, 6, 0, 0.35));
+}
+
+.race-card__meta-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.race-card__meta-copy .ant-typography {
+    margin: 0 !important;
+}
+
+.race-card__meta-copy .ant-typography-secondary {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ====================================
+   DIVIDER
+   ==================================== */
+
+.race-card__divider {
+    margin: 0;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    opacity: 0.5;
+}
+
+/* ====================================
+   COUNTDOWN
+   ==================================== */
+
+.race-card__countdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.race-card__countdown-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.race-card__countdown-title svg {
+    color: var(--f1-gold);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.35));
+}
+
+/* ====================================
+   FOOTER
+   ==================================== */
+
+.race-card__footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.race-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    transition: color var(--transition-base), transform var(--transition-base);
+}
+
+.race-card__link:hover {
+    color: var(--f1-white);
+    transform: translateY(-2px);
+}
+
+/* ====================================
+   RESPONSIVE DESIGN
+   ==================================== */
+
+@media (max-width: 900px) {
+    .race-card {
+        padding: clamp(1.5rem, 4vw, 2rem);
+        border-radius: var(--radius-lg);
+    }
+
+    .race-card__meta {
+        gap: var(--space-sm);
+    }
+}
+
+@media (max-width: 600px) {
+    .race-card {
+        gap: var(--space-md);
+    }
+
+    .race-card__meta {
+        grid-template-columns: 1fr;
+    }
+
+    .race-card__countdown-title {
+        font-size: 0.9rem !important;
+    }
+
+    .race-card__link {
+        justify-content: flex-end;
+        width: 100%;
+    }
+}
+
+/* ====================================
+   REDUCED MOTION
+   ==================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .race-card,
+    .race-card::before,
+    .race-card::after,
+    .race-card__link {
+        transition: none;
+    }
+
+    .race-card:hover {
+        transform: none;
+        box-shadow:
+            0 18px 40px rgba(10, 10, 20, 0.45),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+}

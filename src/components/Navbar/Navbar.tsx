@@ -1,8 +1,7 @@
-import { NavLink } from "react-router-dom";
-import './navbar.css';
+import { NavLink } from "react-router";
+import "./navbar.css";
 
 const Navbar = () => {
-
   const links = [
     { to: "/", label: "Home" },
     { to: "/drivers", label: "Drivers" },
@@ -17,7 +16,7 @@ const Navbar = () => {
       </div>
 
       <ul className="nav-links">
-        {links.map(link => (
+        {links.map((link) => (
           <li key={link.to}>
             <NavLink
               to={link.to}
