@@ -231,7 +231,7 @@ const Drivers = () => {
 
               return (
                 <DriverCard
-                  key={Driver.givenName + Driver.familyName + position}
+                  key={Driver.driverId ?? `${Driver.givenName}-${Driver.familyName}-${position}`}
                   name={`${Driver.givenName} ${Driver.familyName}`}
                   position={position}
                   points={points}
