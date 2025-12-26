@@ -23,6 +23,7 @@ type DriverInfo = {
   familyName: string;
   nationality: string;
   permanentNumber?: string;
+  driverId?: string;
 };
 
 type DriverStanding = {
