@@ -156,6 +156,7 @@ const Constructors = () => {
               }
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
+              // Faster stagger (0.04s) for constructor cards to handle ~10 teams efficiently
               transition={{ duration: 0.45, delay: index * 0.04 }}
               whileHover={{ y: -6, scale: 1.015 }}
             >

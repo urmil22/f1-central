@@ -354,6 +354,7 @@ const Home = () => {
               <RaceCard
                 key={`${race.round}-${race.raceName}`}
                 race={race}
+                // Slower stagger (0.06s) for race cards to emphasize each upcoming event
                 animationDelay={index * 0.06}
               />
             ))
@@ -363,6 +364,7 @@ const Home = () => {
               <RaceCard
                 key={`${race.round}-${race.raceName}`}
                 race={race}
+                // Slower stagger (0.06s) for race cards to emphasize each upcoming event
                 animationDelay={index * 0.06}
               />
             ))
