@@ -1,35 +1,354 @@
-.drivers-list-container {
-    padding: 20px;
+/* ====================================
+   DRIVERS PAGE - PREMIUM DESIGN
+   ==================================== */
+
+.drivers-page {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-3xl);
+    width: 100%;
+    color: var(--f1-white);
+}
 
-    .standings-title {
-        text-align: center;
+/* ====================================
+   HERO SECTION
+   ==================================== */
+
+.drivers-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: clamp(2.5rem, 4vw, 3.5rem);
+    padding: clamp(2.75rem, 6vw, 4.5rem);
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(
+        140deg,
+        rgba(10, 10, 15, 0.94) 0%,
+        rgba(21, 21, 30, 0.88) 45%,
+        rgba(10, 10, 15, 0.94) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.drivers-hero__background {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.drivers-hero__glow {
+    position: absolute;
+    width: clamp(320px, 32vw, 520px);
+    height: clamp(320px, 32vw, 520px);
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.7;
+    transition: opacity var(--transition-base);
+}
+
+.drivers-hero__glow--left {
+    top: -15%;
+    left: -10%;
+    background: radial-gradient(
+        circle,
+        rgba(225, 6, 0, 0.45) 0%,
+        transparent 72%
+    );
+}
+
+.drivers-hero__glow--right {
+    bottom: -20%;
+    right: -8%;
+    background: radial-gradient(
+        circle,
+        rgba(0, 163, 224, 0.32) 0%,
+        transparent 75%
+    );
+}
+
+.drivers-hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    position: relative;
+    z-index: 1;
+}
+
+.drivers-hero__eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.drivers-hero__title {
+    margin: 0 !important;
+    font-size: clamp(2.4rem, 4vw, 3.8rem) !important;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.drivers-hero__subtitle {
+    margin: 0 !important;
+    max-width: 48ch;
+    font-size: clamp(1rem, 1.65vw, 1.2rem);
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.drivers-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.drivers-hero__metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+}
+
+.drivers-hero__metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.drivers-hero__metric .ant-statistic-title {
+    color: rgba(255, 255, 255, 0.68);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.8rem;
+}
+
+.drivers-hero__metric .ant-statistic-content {
+    color: var(--f1-white);
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.drivers-hero__metric .ant-statistic-content-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.drivers-hero__metric .ant-statistic-content-prefix,
+.drivers-hero__metric .ant-statistic-content-suffix {
+    color: var(--f1-red-primary);
+}
+
+.drivers-hero__leader {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: clamp(2rem, 4vw, 2.75rem);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.04) 100%
+    );
+    color: var(--f1-white);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.drivers-hero__leader::before {
+    content: "";
+    position: absolute;
+    inset: -45% 35% auto -20%;
+    height: 140%;
+    background: linear-gradient(
+        135deg,
+        rgba(225, 6, 0, 0.4) 0%,
+        rgba(225, 6, 0, 0) 70%
+    );
+    transform: skewX(-16deg);
+    opacity: 0.85;
+}
+
+.drivers-hero__leader > * {
+    position: relative;
+    z-index: 1;
+}
+
+.drivers-hero__leader-label {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.drivers-hero__leader-name {
+    margin: 0 !important;
+    font-size: clamp(1.9rem, 3vw, 2.5rem) !important;
+    letter-spacing: -0.015em;
+}
+
+.drivers-hero__leader-meta {
+    margin: 0 !important;
+    color: rgba(255, 255, 255, 0.78) !important;
+    font-size: 0.95rem;
+}
+
+.drivers-hero__leader-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.drivers-hero__leader-constructor {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+}
+
+/* ====================================
+   SECTION
+   ==================================== */
+
+.drivers-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    padding: clamp(2.25rem, 4vw, 3rem);
+    border-radius: var(--radius-2xl);
+    background: rgba(12, 12, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(16px);
+}
+
+.drivers-section__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-md);
+    align-items: flex-start;
+}
+
+.drivers-section__header h2 {
+    margin: 0 !important;
+    font-size: clamp(1.85rem, 3vw, 2.4rem) !important;
+    line-height: 1.1;
+}
+
+.drivers-section__header p {
+    margin: 0 !important;
+    max-width: 55ch;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.drivers-section__actions {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+}
+
+.drivers-section__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+}
+
+.drivers-section__loading,
+.drivers-section__empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 280px;
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+/* ====================================
+   RESPONSIVE DESIGN
+   ==================================== */
+
+@media (max-width: 1200px) {
+    .drivers-hero {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     }
 
-    .drivers-list-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 16px;
+    .drivers-hero__metrics {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}
 
-        .driver-card {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-            padding: 16px;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 8px;
-        }
+@media (max-width: 900px) {
+    .drivers-hero {
+        padding: clamp(2.25rem, 8vw, 3rem);
+    }
 
-        .driver-stats {
-            display: flex;
-            justify-content: space-around;
-        }
+    .drivers-section {
+        padding: clamp(1.75rem, 6vw, 2.5rem);
+    }
+}
 
+@media (max-width: 768px) {
+    .drivers-page {
+        gap: var(--space-2xl);
+    }
+
+    .drivers-hero {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+        padding: 2.25rem;
+        border-radius: var(--radius-xl);
+    }
+
+    .drivers-hero__cta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .drivers-hero__metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .drivers-section {
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+    }
+
+    .drivers-section__grid {
+        gap: var(--space-md);
+    }
+}
+
+@media (max-width: 520px) {
+    .drivers-hero {
+        padding: 1.75rem;
+    }
+
+    .drivers-section {
+        padding: 1.5rem;
+    }
+
+    .drivers-section__header h2 {
+        font-size: 1.65rem !important;
+    }
+
+    .drivers-section__actions {
+        width: 100%;
+        justify-content: flex-start;
     }
 }

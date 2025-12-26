@@ -1,81 +1,129 @@
+import dayjs from "dayjs";
+import { useEffect, useMemo, useState } from "react";
 import { Typography } from "antd";
-import React, { useEffect, useState } from "react";
-import './timer.css';
+import "./timer.css";
 
 type TimeLeft = {
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
+  totalSeconds: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
 };
 
 interface TimerProps {
-    utcDateTime: string; // Example: "2025-09-21T11:00:00Z"
+  utcDateTime?: string | null;
+  label?: string;
 }
 
-const Timer: React.FC<TimerProps> = ({ utcDateTime }) => {
-    const [timeLeft, setTimeLeft] = useState<TimeLeft>({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-    });
+const createInitialState = (): TimeLeft => ({
+  totalSeconds: 0,
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+});
 
-    const { Title, Paragraph, Text } = Typography;
+const Timer = ({ utcDateTime, label = "Next race in" }: TimerProps) => {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(createInitialState());
+  const { Title, Paragraph, Text } = Typography;
 
-    useEffect(() => {
-        if (!utcDateTime) return;
+  const targetDate = useMemo(() => {
+    if (!utcDateTime) {
+      return null;
+    }
 
-        const targetDate = new Date(utcDateTime);
+    const parsed = dayjs(utcDateTime);
+    return parsed.isValid() ? parsed : null;
+  }, [utcDateTime]);
 
-        const updateTimer = () => {
-            const now = new Date();
-            const diff = targetDate.getTime() - now.getTime();
+  useEffect(() => {
+    if (!targetDate) {
+      setTimeLeft(createInitialState());
+      return;
+    }
 
-            if (diff <= 0) {
-                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                return;
-            }
+    const updateTimer = () => {
+      const now = dayjs();
+      const diffInSeconds = targetDate.diff(now, "second");
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
+      if (diffInSeconds <= 0) {
+        setTimeLeft(createInitialState());
+        return;
+      }
 
-            setTimeLeft({ days, hours, minutes, seconds });
-        };
+      const days = Math.floor(diffInSeconds / 86400);
+      const hours = Math.floor((diffInSeconds % 86400) / 3600);
+      const minutes = Math.floor((diffInSeconds % 3600) / 60);
+      const seconds = diffInSeconds % 60;
 
-        updateTimer();
-        const interval = setInterval(updateTimer, 1000);
+      setTimeLeft({
+        totalSeconds: diffInSeconds,
+        days,
+        hours,
+        minutes,
+        seconds,
+      });
+    };
 
-        return () => clearInterval(interval);
-    }, [utcDateTime]);
+    updateTimer();
+    const intervalId = window.setInterval(updateTimer, 1000);
 
-    return (
-        <div className="timer-container">
-            <Title level={4}>
-                Next race in
-            </Title>
-            <div className="timer-values">
-                <div className="timer-value">
-                    <Paragraph strong type="secondary">{timeLeft.days}</Paragraph>
-                    <Text>days</Text>
-                </div>
-                <div className="timer-value">
-                    <Paragraph strong type="secondary">{timeLeft.hours}</Paragraph>
-                    <Text>hours</Text>
-                </div>
-                <div className="timer-value">
-                    <Paragraph strong type="secondary">{timeLeft.minutes}</Paragraph>
-                    <Text>minutes</Text>
-                </div>
-                <div className="timer-value">
-                    <Paragraph strong type="secondary">{timeLeft.seconds}</Paragraph>
-                    <Text>seconds</Text>
-                </div>
+    return () => window.clearInterval(intervalId);
+  }, [targetDate]);
+
+  const segments = useMemo(
+    () => [
+      { label: "days", value: timeLeft.days },
+      { label: "hours", value: timeLeft.hours },
+      { label: "minutes", value: timeLeft.minutes },
+      { label: "seconds", value: timeLeft.seconds },
+    ],
+    [timeLeft.days, timeLeft.hours, timeLeft.minutes, timeLeft.seconds],
+  );
+
+  const hasValidTarget = Boolean(targetDate);
+  const hasCountdown = Boolean(hasValidTarget && timeLeft.totalSeconds > 0);
+  const heading = hasCountdown
+    ? label
+    : hasValidTarget
+      ? "Race imminent"
+      : "Awaiting race confirmation";
+  const statusMessage = useMemo(() => {
+    if (!hasValidTarget) {
+      return "Race schedule will be announced as soon as the FIA confirms the session timing.";
+    }
+    if (!hasCountdown) {
+      return "Formation lap should be underway — refresh to sync with the latest timing.";
+    }
+    if (timeLeft.totalSeconds <= 3600) {
+      return "Final hour before lights out. Teams are making their last-minute checks.";
+    }
+    return "";
+  }, [hasValidTarget, hasCountdown, timeLeft.totalSeconds]);
+
+  return (
+    <div className="timer-container">
+      <Title level={4}>{heading}</Title>
+      <Text type="secondary">{statusMessage}</Text>
+      <div className="timer-values">
+        {segments.map((segment) => {
+          const displayValue = hasCountdown
+            ? segment.value.toString().padStart(2, "0")
+            : "00";
+
+          return (
+            <div className="timer-value" key={segment.label}>
+              <Paragraph strong type={!hasCountdown ? "secondary" : undefined}>
+                {displayValue}
+              </Paragraph>
+              <Text>{segment.label}</Text>
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 export default Timer;
