@@ -7,7 +7,7 @@ type DriverCardProps = {
   name: string;
   position: string;
   points: string;
-  constructor_name: string;
+  constructorName: string;
   wins: string;
   nationality: string;
   colorCode: string;
@@ -19,7 +19,7 @@ const DriverCard = ({
   points,
   wins,
   nationality,
-  constructor_name,
+  constructorName,
   colorCode,
 }: DriverCardProps) => {
   const { Title, Text } = Typography;
@@ -62,7 +62,7 @@ const DriverCard = ({
             className="driver-card__constructor"
             style={{ borderColor: colorCode, color: colorCode }}
           >
-            {constructor_name}
+            {constructorName}
           </Tag>
           <Tag
             color="magenta"

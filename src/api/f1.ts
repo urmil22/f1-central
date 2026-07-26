@@ -1,140 +1,88 @@
-import { F1_TEAM_COLORS } from "../constants";
+import { DEFAULT_TEAM_COLOR, F1_TEAM_COLORS } from "../constants";
+import type {
+  ConstructorStanding,
+  ConstructorStandingsResponse,
+  DriverStanding,
+  DriverStandingsResponse,
+  ErgastConstructor,
+  Race,
+  RaceScheduleResponse,
+  TeamConstructor,
+} from "./types";
 
-const BASE_URL = "https://api.jolpi.ca/ergast/f1";
+const BASE_URL =
+  import.meta.env.VITE_F1_API_URL ?? "https://api.jolpi.ca/ergast/f1";
 
-export const fetchConstructorStandings = async () => {
-    try {
-        const res = await fetch(`${BASE_URL}/current/constructorstandings.json`);
-        const data = await res.json();
-        const standings = data.MRData.StandingsTable.StandingsLists[0].ConstructorStandings || [];
-        const updatedStandings = standings.map((constructor: any) => {
-            const colorCode = F1_TEAM_COLORS[constructor.Constructor.constructorId] || "#999";
+/**
+ * Every fetcher in this module throws on failure — network error, non-2xx, or
+ * an unusable payload. Callers get a single error path to handle, so don't
+ * swallow errors here and return a fallback value instead.
+ */
+const fetchJson = async <T>(
+  path: string,
+  signal?: AbortSignal,
+): Promise<T> => {
+  const res = await fetch(`${BASE_URL}${path}`, { signal });
 
-            return {
-                ...constructor,
-                Constructors: [
-                    {
-                        ...constructor.Constructor,
-                        colorCode,
-                    },
-                ],
-            };
-        });
-        return updatedStandings;
+  if (!res.ok) {
+    throw new Error(`F1 API request failed (${res.status}): ${path}`);
+  }
 
-    } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('error', error);
-        return [];
-    }
+  return (await res.json()) as T;
 };
 
-export async function fetchDriverStandings() {
-    try {
-        const res = await fetch(`${BASE_URL}/current/driverstandings.json`);
-        const data = await res.json();
-        const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings || {};
-        const updatedStandings = standings.map((driver: { Constructors: any[]; }) => {
-            const constructor = driver.Constructors[0];
-            const colorCode = F1_TEAM_COLORS[constructor.constructorId] || "#999";
+const withTeamColor = (constructor: ErgastConstructor): TeamConstructor => ({
+  ...constructor,
+  colorCode: F1_TEAM_COLORS[constructor.constructorId] ?? DEFAULT_TEAM_COLOR,
+});
 
-            return {
-                ...driver,
-                Constructors: [
-                    {
-                        ...constructor,
-                        colorCode,
-                    },
-                ],
-            };
-        });
-        return updatedStandings;
+export const fetchDriverStandings = async (
+  signal?: AbortSignal,
+): Promise<DriverStanding[]> => {
+  const data = await fetchJson<DriverStandingsResponse>(
+    "/current/driverstandings.json",
+    signal,
+  );
+  const standings =
+    data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings ?? [];
 
-    } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('error', error);
-    }
-}
+  return standings.map((standing) => ({
+    ...standing,
+    Constructors: (standing.Constructors ?? []).map(withTeamColor),
+  }));
+};
 
-export async function getRaceScheduleData() {
-    const res = await fetch(`${BASE_URL}/current.json`);
-    if (!res.ok) {
-        throw new Error("Failed to fetch race data");
-    }
-    const data = await res.json();
+export const fetchConstructorStandings = async (
+  signal?: AbortSignal,
+): Promise<ConstructorStanding[]> => {
+  const data = await fetchJson<ConstructorStandingsResponse>(
+    "/current/constructorstandings.json",
+    signal,
+  );
+  const standings =
+    data.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings ??
+    [];
 
-    if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
-        interface race {
-            season: string;
-            round: string;
-            raceName: string;
-            date: string;
-            time: string;
-            Circuit: {
-                circuitName: string;
-                Location: {
-                    locality: string;
-                    country: string;
-                };
-            };
-        }
-        return data.MRData.RaceTable.Races.map((race: race) => ({
-            season: race.season,
-            round: race.round,
-            raceName: race.raceName,
-            date: race.date,
-            time: race.time,
-            Circuit: {
-                circuitName: race.Circuit.circuitName,
-                Location: {
-                    locality: race.Circuit.Location.locality,
-                    country: race.Circuit.Location.country,
-                },
-            },
-        }));
-    } else {
-        throw new Error("Invalid data format");
-    }
-}
+  return standings.map((standing) => ({
+    ...standing,
+    Constructor: withTeamColor(standing.Constructor),
+  }));
+};
 
-export async function getNextYearRaceScheduleData() {
-    const nextYear = new Date().getFullYear() + 1;
-    const res = await fetch(`${BASE_URL}/${nextYear}.json`);
-    if (!res.ok) {
-        throw new Error("Failed to fetch race data");
-    }
-    const data = await res.json();
+/**
+ * Race schedule for a season — pass `"current"` for the running season, or a
+ * year for a specific one.
+ */
+export const fetchRaceSchedule = async (
+  season: string | number = "current",
+  signal?: AbortSignal,
+): Promise<Race[]> => {
+  const data = await fetchJson<RaceScheduleResponse>(`/${season}.json`, signal);
+  const races = data.MRData?.RaceTable?.Races;
 
-    if (data.MRData && data.MRData.RaceTable && data.MRData.RaceTable.Races) {
-        interface race {
-            season: string;
-            round: string;
-            raceName: string;
-            date: string;
-            time: string;
-            Circuit: {
-                circuitName: string;
-                Location: {
-                    locality: string;
-                    country: string;
-                };
-            };
-        }
-        return data.MRData.RaceTable.Races.map((race: race) => ({
-            season: race.season,
-            round: race.round,
-            raceName: race.raceName,
-            date: race.date,
-            time: race.time,
-            Circuit: {
-                circuitName: race.Circuit.circuitName,
-                Location: {
-                    locality: race.Circuit.Location.locality,
-                    country: race.Circuit.Location.country,
-                },
-            },
-        }));
-    } else {
-        throw new Error("Invalid data format");
-    }
-}
+  if (!races) {
+    throw new Error(`Unexpected race schedule payload for season "${season}"`);
+  }
+
+  return races;
+};

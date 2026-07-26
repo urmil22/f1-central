@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   BarChartOutlined,
   ReloadOutlined,
@@ -7,31 +7,12 @@ import {
   ThunderboltOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
-import { Button, Spin, Statistic, Tag, Typography, notification } from "antd";
+import { Button, Spin, Statistic, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { fetchConstructorStandings } from "../../api/f1";
+import { useAsyncData } from "../../hooks/useAsyncData";
 import "./constructors.css";
-
-type ConstructorMeta = {
-  colorCode: string;
-  constructorId?: string;
-  name?: string;
-  nationality?: string;
-};
-
-type ConstructorStanding = {
-  constructorId?: string;
-  position: string;
-  points: string;
-  wins: string;
-  Constructor: {
-    constructorId?: string;
-    name: string;
-    nationality: string;
-  };
-  Constructors: ConstructorMeta[];
-};
 
 type CSSCustomProperties = CSSProperties & {
   "--team-accent"?: string;
@@ -40,31 +21,20 @@ type CSSCustomProperties = CSSProperties & {
 };
 
 const Constructors = () => {
-  const [standings, setStandings] = useState<ConstructorStanding[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
   const { Title, Paragraph, Text } = Typography;
 
-  const loadStandings = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetchConstructorStandings();
-      setStandings(response ?? []);
-    } catch {
-      notification.error({
-        message: "Unable to load constructor standings",
-        description:
-          "The latest constructor standings could not be retrieved. Please try again shortly.",
-        placement: "bottomRight",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadStandings().catch(() => undefined);
-  }, [loadStandings]);
+  const {
+    data: standings,
+    isLoading,
+    reload: loadStandings,
+  } = useAsyncData(fetchConstructorStandings, {
+    initialData: [],
+    error: {
+      message: "Unable to load constructor standings",
+      description:
+        "The latest constructor standings could not be retrieved. Please try again shortly.",
+    },
+  });
 
   const championshipYear = dayjs().format("YYYY");
   const leader = standings[0];
@@ -80,15 +50,15 @@ const Constructors = () => {
     }
 
     const totalPointsValue = standings.reduce(
-      (acc, team) => acc + Number.parseFloat(team.points ?? "0"),
+      (acc, team) => acc + Number.parseFloat(team.points),
       0,
     );
 
     const winningMarginValue =
       leader && runnerUp
         ? Math.max(
-            Number.parseFloat(leader.points ?? "0") -
-              Number.parseFloat(runnerUp.points ?? "0"),
+            Number.parseFloat(leader.points) -
+              Number.parseFloat(runnerUp.points),
             0,
           )
         : null;
@@ -101,7 +71,7 @@ const Constructors = () => {
     };
   }, [standings, leader, runnerUp]);
 
-  const leaderColor = leader?.Constructors?.[0]?.colorCode ?? "#ff1e1e";
+  const leaderColor = leader?.Constructor.colorCode ?? "#ff1e1e";
 
   const renderStandingsGrid = () => {
     if (isLoading) {
@@ -121,13 +91,13 @@ const Constructors = () => {
       );
     }
 
-    const leaderPoints = Number.parseFloat(standings[0].points ?? "0");
+    const leaderPoints = Number.parseFloat(standings[0].points);
 
     return (
       <div className="constructors-section__grid">
         {standings.map((team, index) => {
-          const accent = team.Constructors?.[0]?.colorCode ?? "#ffffff";
-          const normalizedPoints = Number.parseFloat(team.points ?? "0");
+          const accent = team.Constructor.colorCode;
+          const normalizedPoints = Number.parseFloat(team.points);
           const performanceRatio = leaderPoints
             ? Math.max(
                 8,
@@ -137,15 +107,11 @@ const Constructors = () => {
                 ),
               )
             : 0;
-          const wins = Number.parseInt(team.wins ?? "0", 10);
-          const key =
-            team.constructorId ??
-            team.Constructor.constructorId ??
-            team.Constructor.name;
+          const wins = Number.parseInt(team.wins, 10);
 
           return (
             <motion.article
-              key={`${key}-${team.position}`}
+              key={team.Constructor.constructorId}
               className="constructors-card"
               style={
                 {

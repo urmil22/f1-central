@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import dayjs from "dayjs";
 import {
   CalendarOutlined,
@@ -6,143 +6,66 @@ import {
   FlagOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Divider,
-  Spin,
-  Statistic,
-  Tag,
-  Typography,
-  notification,
-} from "antd";
-import {
-  fetchDriverStandings,
-  getNextYearRaceScheduleData,
-  getRaceScheduleData,
-} from "../../api/f1";
+import { Button, Divider, Spin, Statistic, Tag, Typography } from "antd";
+import { fetchDriverStandings, fetchRaceSchedule } from "../../api/f1";
 import DriverCard from "../../components/DriverCard/DriverCard";
 import RaceCard from "../../components/RaceCard/RaceCard";
+import { DEFAULT_TEAM_COLOR } from "../../constants";
+import { useAsyncData } from "../../hooks/useAsyncData";
+import { filterUpcomingRaces, raceStartsAt } from "../../utils/race";
 import "./home.css";
 
-interface Driver {
-  driverId: string;
-  position: string;
-  points: string;
-  wins: string;
-  nationality: string;
-  constructor_name: string;
-  Driver: {
-    driverId: string;
-    givenName: string;
-    familyName: string;
-    nationality: string;
-  };
-  Constructors: {
-    name: string;
-    colorCode: string;
-  }[];
-}
-
-interface Race {
-  season: string;
-  round: string;
-  raceName: string;
-  date: string;
-  time?: string;
-  Circuit: {
-    circuitName: string;
-    Location: {
-      locality: string;
-      country: string;
-    };
-  };
-}
+const RACE_SCHEDULE_ERROR = {
+  message: "Unable to load race schedule",
+  description: "Upcoming race information is currently unavailable.",
+};
 
 const Home = () => {
-  const [topDrivers, setTopDrivers] = useState<Driver[]>([]);
-  const [driverLoading, setDriverLoading] = useState<boolean>(true);
-
-  const [upcomingRaces, setUpcomingRaces] = useState<Race[]>([]);
-  const [raceLoading, setRaceLoading] = useState<boolean>(true);
-  const [nextYearRaces, setNextYearRaces] = useState<Race[]>([]);
-
   const { Title, Paragraph, Text } = Typography;
 
-  const loadTopDrivers = async () => {
-    setDriverLoading(true);
-    try {
-      const data = await fetchDriverStandings();
-      setTopDrivers(data?.slice(0, 5) ?? []);
-    } catch {
-      notification.error({
-        message: "Unable to load standings",
-        description:
-          "The latest driver standings could not be retrieved. Try again shortly.",
-        placement: "bottomRight",
-      });
-    } finally {
-      setDriverLoading(false);
-    }
-  };
+  const {
+    data: driverStandings,
+    isLoading: driverLoading,
+    reload: reloadDrivers,
+  } = useAsyncData(fetchDriverStandings, {
+    initialData: [],
+    error: {
+      message: "Unable to load standings",
+      description:
+        "The latest driver standings could not be retrieved. Try again shortly.",
+    },
+  });
 
-  const loadUpcomingRaces = async () => {
-    setRaceLoading(true);
-    try {
-      const data = await getRaceScheduleData();
-      const now = dayjs();
-      const upcoming = (data ?? [])
-        .filter((race: Race) => {
-          const raceDateTime = race.time
-            ? dayjs(`${race.date}T${race.time}`)
-            : dayjs(race.date);
-          return raceDateTime.isAfter(now);
-        })
-        .slice(0, 4);
-      setUpcomingRaces(upcoming);
-    } catch {
-      notification.error({
-        message: "Unable to load race schedule",
-        description: "Upcoming race information is currently unavailable.",
-        placement: "bottomRight",
-      });
-    } finally {
-      setRaceLoading(false);
-    }
-  };
+  const { data: currentSeasonRaces, isLoading: raceLoading } = useAsyncData(
+    (signal) => fetchRaceSchedule("current", signal),
+    { initialData: [], error: RACE_SCHEDULE_ERROR },
+  );
 
-  const loadNextYearRaces = async () => {
-    try {
-      const data = await getNextYearRaceScheduleData();
-      const now = dayjs();
-      const upcoming = (data ?? [])
-        .filter((race: Race) => {
-          const raceDateTime = race.time
-            ? dayjs(`${race.date}T${race.time}`)
-            : dayjs(race.date);
-          return raceDateTime.isAfter(now);
-        })
-        .slice(0, 1);
+  const topDrivers = useMemo(
+    () => driverStandings.slice(0, 5),
+    [driverStandings],
+  );
 
-      setNextYearRaces(upcoming);
-    } catch {
-      notification.error({
-        message: "Unable to load race schedule",
-        description: "Upcoming race information is currently unavailable.",
-        placement: "bottomRight",
-      });
-    }
-  };
+  const upcomingRaces = useMemo(
+    () => filterUpcomingRaces(currentSeasonRaces).slice(0, 4),
+    [currentSeasonRaces],
+  );
 
-  useEffect(() => {
-    loadTopDrivers();
-    loadUpcomingRaces();
-  }, []);
+  // Only fall back to next season once the current schedule has actually
+  // resolved — an empty list while still loading isn't an exhausted calendar.
+  const { data: nextSeasonRaces } = useAsyncData(
+    (signal) => fetchRaceSchedule(dayjs().year() + 1, signal),
+    {
+      initialData: [],
+      enabled: !raceLoading && upcomingRaces.length === 0,
+      error: RACE_SCHEDULE_ERROR,
+    },
+  );
 
-  useEffect(() => {
-    if (upcomingRaces.length === 0) {
-      loadNextYearRaces();
-    }
-  }, [upcomingRaces.length]);
+  const nextSeasonHighlight = useMemo(
+    () => filterUpcomingRaces(nextSeasonRaces).slice(0, 1),
+    [nextSeasonRaces],
+  );
 
   const leadingDriver = topDrivers[0];
   const runnerUp = topDrivers[1];
@@ -152,10 +75,8 @@ const Home = () => {
     if (!nextRace) {
       return "To be announced";
     }
-    const base = nextRace.time
-      ? dayjs(`${nextRace.date}T${nextRace.time}`)
-      : dayjs(nextRace.date);
-    if (!base.isValid()) {
+    const base = raceStartsAt(nextRace);
+    if (!base) {
       return "To be announced";
     }
     return nextRace.time
@@ -221,7 +142,12 @@ const Home = () => {
             >
               Official F1 Hub
             </Button>
-            <Button size="large" ghost onClick={loadTopDrivers}>
+            <Button
+              size="large"
+              ghost
+              loading={driverLoading}
+              onClick={reloadDrivers}
+            >
               Refresh Standings
             </Button>
           </div>
@@ -289,7 +215,12 @@ const Home = () => {
               push their cars to the absolute limit.
             </Paragraph>
           </div>
-          <Button size="large" type="default" onClick={loadTopDrivers}>
+          <Button
+            size="large"
+            type="default"
+            loading={driverLoading}
+            onClick={reloadDrivers}
+          >
             Sync Standings
           </Button>
         </div>
@@ -306,12 +237,14 @@ const Home = () => {
                 name={`${driver.Driver.givenName} ${driver.Driver.familyName}`}
                 position={driver.position}
                 points={driver.points}
-                constructor_name={
+                constructorName={
                   driver.Constructors[0]?.name ?? "Unknown Constructor"
                 }
                 nationality={driver.Driver.nationality}
                 wins={driver.wins}
-                colorCode={driver.Constructors[0]?.colorCode ?? "#ffffff"}
+                colorCode={
+                  driver.Constructors[0]?.colorCode ?? DEFAULT_TEAM_COLOR
+                }
               />
             ))
           ) : (
@@ -357,9 +290,9 @@ const Home = () => {
                 animationDelay={index * 0.06}
               />
             ))
-          ) : // just show one race
-          nextYearRaces.length > 0 ? (
-            nextYearRaces.map((race, index) => (
+          ) : // the current calendar is exhausted — preview next season instead
+          nextSeasonHighlight.length > 0 ? (
+            nextSeasonHighlight.map((race, index) => (
               <RaceCard
                 key={`${race.round}-${race.raceName}`}
                 race={race}

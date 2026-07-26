@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import {
   CalendarOutlined,
   EnvironmentOutlined,
@@ -7,28 +6,10 @@ import {
 } from "@ant-design/icons";
 import { Divider, Tag, Typography } from "antd";
 import { motion } from "framer-motion";
+import type { Race } from "../../api/types";
+import { raceStartIso, raceStartsAt } from "../../utils/race";
 import Timer from "../Timer/Timer";
 import "./race-card.css";
-
-type RaceLocation = {
-  locality: string;
-  country: string;
-};
-
-type RaceCircuit = {
-  circuitName: string;
-  Location: RaceLocation;
-};
-
-type Race = {
-  season: string;
-  round: string;
-  raceName: string;
-  date: string;
-  time?: string;
-  Circuit: RaceCircuit;
-  url?: string;
-};
 
 type RaceCardProps = {
   race: Race;
@@ -43,22 +24,13 @@ const RaceCard = ({ race, animationDelay = 0 }: RaceCardProps) => {
     ? `${location.locality}, ${location.country}`
     : "Location to be confirmed";
 
-  const isoDateTime = race.time
-    ? race.time.includes("Z")
-      ? `${race.date}T${race.time}`
-      : `${race.date}T${race.time}Z`
-    : undefined;
-
-  const eventDate = isoDateTime ? dayjs(isoDateTime) : null;
-  const fallbackDate = dayjs(race.date);
-  const formattedDate = eventDate?.isValid()
+  const isoDateTime = raceStartIso(race);
+  const eventDate = raceStartsAt(race);
+  const formattedDate = eventDate
     ? eventDate.format("ddd, MMM D YYYY")
-    : fallbackDate.isValid()
-      ? fallbackDate.format("ddd, MMM D YYYY")
-      : race.date;
-  const formattedTime = eventDate?.isValid()
-    ? eventDate.format("HH:mm")
-    : "TBD";
+    : race.date;
+  const formattedTime =
+    isoDateTime && eventDate ? eventDate.format("HH:mm") : "TBD";
 
   const localTimeZoneLabel =
     new Intl.DateTimeFormat(undefined, {
