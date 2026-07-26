@@ -1,3 +1,6 @@
+/** Accent colour used when a constructor has no entry in F1_TEAM_COLORS. */
+export const DEFAULT_TEAM_COLOR = "#999999";
+
 export const F1_TEAM_COLORS: Record<string, string> = {
     red_bull: "#1E41FF",
     mercedes: "#6CD3BF",

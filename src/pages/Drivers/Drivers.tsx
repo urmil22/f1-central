@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CrownOutlined,
   FireOutlined,
@@ -6,60 +6,30 @@ import {
   ReloadOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
-import { Button, Spin, Statistic, Tag, Typography, notification } from "antd";
+import { Button, Spin, Statistic, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { fetchDriverStandings } from "../../api/f1";
 import DriverCard from "../../components/DriverCard/DriverCard";
+import { DEFAULT_TEAM_COLOR } from "../../constants";
+import { useAsyncData } from "../../hooks/useAsyncData";
 import "./drivers.css";
 
-type ConstructorInfo = {
-  colorCode: string;
-  name: string;
-};
-
-type DriverInfo = {
-  givenName: string;
-  familyName: string;
-  nationality: string;
-  permanentNumber?: string;
-  driverId?: string;
-};
-
-type DriverStanding = {
-  position: string;
-  points: string;
-  wins: string;
-  Driver: DriverInfo;
-  Constructors: ConstructorInfo[];
-};
-
 const Drivers = () => {
-  const [driverStandings, setDriverStandings] = useState<DriverStanding[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
   const { Title, Paragraph, Text } = Typography;
 
-  const loadStandings = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetchDriverStandings();
-      setDriverStandings(response ?? []);
-    } catch {
-      notification.error({
-        message: "Unable to load standings",
-        description:
-          "We couldn’t retrieve the latest driver standings. Please check back in a moment.",
-        placement: "bottomRight",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStandings().catch(() => undefined);
-  }, []);
+  const {
+    data: driverStandings,
+    isLoading,
+    reload: loadStandings,
+  } = useAsyncData(fetchDriverStandings, {
+    initialData: [],
+    error: {
+      message: "Unable to load standings",
+      description:
+        "We couldn’t retrieve the latest driver standings. Please check back in a moment.",
+    },
+  });
 
   const leader = driverStandings[0];
   const runnerUp = driverStandings[1];
@@ -123,6 +93,7 @@ const Drivers = () => {
               size="large"
               type="primary"
               icon={<ReloadOutlined />}
+              loading={isLoading}
               onClick={loadStandings}
             >
               Refresh Standings
@@ -232,14 +203,14 @@ const Drivers = () => {
 
               return (
                 <DriverCard
-                  key={Driver.driverId ?? `${Driver.givenName}-${Driver.familyName}-${position}`}
+                  key={Driver.driverId}
                   name={`${Driver.givenName} ${Driver.familyName}`}
                   position={position}
                   points={points}
                   wins={wins}
                   nationality={Driver.nationality}
-                  constructor_name={constructor?.name ?? "Constructor"}
-                  colorCode={constructor?.colorCode ?? "#ffffff"}
+                  constructorName={constructor?.name ?? "Constructor"}
+                  colorCode={constructor?.colorCode ?? DEFAULT_TEAM_COLOR}
                 />
               );
             })}

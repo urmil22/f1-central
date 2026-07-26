@@ -27,6 +27,7 @@ export default defineConfig([
     },
     plugins: {
       js,
+      "@typescript-eslint": tseslint.plugin,
       react: pluginReact,
       "react-hooks": pluginReactHooks,
     },
@@ -36,7 +37,11 @@ export default defineConfig([
       ...pluginReact.configs.flat.recommended.rules,
 
       // Your custom rules
+      // The base rule doesn't understand TS-only syntax (type parameters,
+      // function-type parameter names, ambient declarations), so defer to the
+      // type-aware version.
       "no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": "error",
       "no-console": "error",
       "react/react-in-jsx-scope": "off",
       "react-hooks/rules-of-hooks": "error",
